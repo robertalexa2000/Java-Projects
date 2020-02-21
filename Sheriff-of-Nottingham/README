@@ -1,0 +1,41 @@
+In implementarea temei, am folosit urmatorul design:
+- o clasa GameImplementation: astfel am reusit sa implementez
+jocul cu doar 3 linii de cod in functia main
+- clasele de jucatori: Players, BasePlayers, GreedyPlayers, 
+BribePlayer
+- o clasa auxiliara pentru jucatori: Bag
+
+1. GameImplementation
+    Pentru a facilita sortarea jucatorilor la final, am construit
+o clasa interna si statica, care contine id-ul, strategia de joc,
+si o referinta catre un tip de jucatori. Clasa GameInput consta in
+mai multe metode publice, denumite sugestiv: createPlayers,
+implementGame, showRanking. Restul metodelor le-am considerat auxiliare
+pentru scopul principal al clasei si de aceea le-am declarat private:
+illegalBonus, kingBonus, kingMap (creearea unui HashMap auxiliar
+pentru King's Bonus), queenBonus, queenMap.
+
+2. Tipurile de jucatori:
+    Am considerat necesara definirea unui clase template pt design-ul
+codului meu, de aceeam am declarat clasa Players ca fiind abstracta. 
+Metodele deja implementate sunt cele comune tuturor jucatori, indiferent
+de strategia adoptata: drawAssets, updateStand, updateCoins.
+    In BasePlayers am implementat createBag si sheriff. De asemenea, am
+folosit si o metoda private, setFrequencyOfAssets, utila in creearea
+sacului cu bunuri.
+    Deoarece GreedyPlayers si BribedPlayers au, in anumite
+circumstante, un comportament asemanator cu BasePlayers, am considerat
+necesar ca cele doua clase sa o mosteneasca pe BasePlayers. Astfel, am
+putut refolosi codul, pastrand functionalitatile deja implementate si
+completand acolo unde era necesar.
+    Am considerat necesar adaugarea in GreedyPlayers a unui camp noRounds,
+initializat cu 1. Acesta tine evidenta rundelor de joc si stie cand Greedy
+trebuie sa adauge o carte ilegala in sac, pe langa strategia de baza. De
+asemenea, deoarece implementarea jucatorilor se face prin downcasting
+(de la Players), in clasa Players am implementat metoda publica updateRound.
+
+3. Sacul:
+    Am considerat necesara implementarea unei clase speciale pentru sac
+care sa contina lista de bunuri, mita si tipul de bun declarat. Clasele
+de players sunt intr-o relatie de compozitie de tipul HAS A cu clasa
+sacului.
