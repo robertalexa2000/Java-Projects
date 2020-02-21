@@ -1,0 +1,110 @@
+Heroes:
+- In implementarea temei am folosit o singura superclass,
+denumita generic Hero si marcata ca abstract. De asemenea,
+deoarece aveam nevoie de multe metode abstracte, am considerat
+ca ar fi util sa declar o interfata HeroElement pentru
+a nu supraincarca clasa Hero. Cu toate astea, pe parcursul
+jocului jucatorii au fost accesati doar prin intermediul
+lui Hero.
+- Hero mai contine si implementari de metode comune tuturor
+jucatorilor: auxLevelUp (levelUp este abstracta si
+particularizata in clasele de jucatori), killHero, move
+si applyOvertime.
+- Pentru a aplica usor overtime, am definit 3 variabile in
+Hero: overtimeSlam, overtimeDamage, overtimeRounds
+- Fiecare clasa de jucatori are:
+	- constructor pentru a seta hp-ul de inceput
+	- metode de calcul pentru abilitati, denumite
+in conformitate cu ceea ce pot aplica jucatorii
+	- metode care returneaza race modifiers specifici
+pentru fiecare rasa de jucator si pentru fiecare abilitate
+
+Map:
+- Am declarat LandTypes ca enumeratie
+- Clasa Map este singleton si contine o matrice de obiecte
+de MapCell
+- MapCell reprezinta o celula de pe harta si contine:
+	- tipul de land
+	- o lista de heroes in care salvez mereu jucatorii
+care se intalnesc intr-un nod de pe harta. Astfel, parcurg
+doar harta celula cu celula si verific lista, fara a compara
+coordonatele jucatorilor in main
+
+Visitor:
+- Interfata generica pentru Visitor, care contine metoda
+accept
+- Un aspect foarte important in implementarea jocului meu este
+ca am separat baseDamage (damage + land modifier) de damage-ul
+final (dupa aplicarea a race modifier). Astfel, am avut nevoie
+de metode care sa le calculeze separat, fara a schimba cumva
+implementarea claselor de jucatori. Am definit clasele:
+	- VisitorFirstAbility: imi intoarce baseDamage pt prima
+abilitate
+	- VisitorSecondAbility: intoarce baseDamage pt a doua
+abilitate
+	- VisitorDamage: primeste cele 2 damage calculate
+anterior, aplica race modifier si scade viata oponentului
+- Acest lucru a fost foarte util mai ales in implementarea lui
+Wizard, unde aveam nevoie sa separ cumva cele doua parti de damage.
+- Astfel, metoda accept primeste atat baseDamage1 si baseDamage2
+(corespunzatoare pentru player-ul care ataca), cat si oppBaseDamage1
+si oppBaseDamage2.
+- Prin implementarea design pattern-ului Visitor am folosit
+conceptul de double dispatch in Java.
+
+Ingerii:
+- Am creeat o interfata care contne metode suficiente pentru a permite lucrul
+cu ingerii: metodele help pentru fiecare tip de erou (aplicand double dispatch),
+metoda toString si metodele getRow si getColumn. Metodele help sunt folosite
+pentru a implementa functionalitate ingerilor (pentru a da bonus si/sau HP), pe
+cand ultimele trei metode sunt utilizat de catre GreatMagician la scrierea in
+fisier.
+- Interfata Angel extinde interfata Subject din cadrul design pattern-ului
+Observer.
+- Metodele help primesc ca parametru tipul de erou asupra caruia actioneaza si
+folosesc getters si setters pentru a mari/a scadea bonusul si HP-ul. Bonusul
+este stocat intr-o variabila in fiecare erou.
+- Pentru a aplica bonusul in fiecare erou a trebui sa modific putin metodele
+de atac.
+- Pentru a putea actiona asupra unui jucator, ni s-a recomandat sa folosim
+Visitor Design Pattern pentru ingeri. Am considerat ca ar fi mai rapid daca as
+folosi doar conceptul de double dispatch prezentat la curs, fara Visitor Design
+Pattern. Astfel, fiecare erou are o metoda numita acceptAngel in care angel-ul
+apeleaza help pe obiectul curent. In esenta este tot Visitor, doar ca nu am
+mai creeat o clasa separata.
+- Am avut o problema legata de rotunjirile pentru testele RRD si RKD. A fost
+postata si pe forum aceasta intrebare, insa solutia oferita de responsabilii
+de teme nu a rezolvat problema. Astfel, s-a sugerat pe forum de catre un alt
+student ca ar fi util sa scadem -0.00001f din bonusul oferit de ingeri. Din
+moment ce nu am gasit si nici nu mi-a fost oferita o alta rezolvare pe forum,
+am aplicat aceasta scadere pentru a trece cele doua teste (diferenta era doar
+de un punct).
+
+Factory:
+- Am folosit 2 clase, AngelFactory si HeroFactory, pentru a implementa factory
+method design pattern. De asemenea, am folosit singleton design pattern,
+deoarece mi s-a parut util sa nu putem instantia de mai multe ori acelasi
+factory.
+
+Observer:
+- Am creeat interfete Observer (cu meta update) si Subject (cu metodele update,
+attach, detach) pentru a permite implementarea design pattern-ului Observer.
+- Interfata Observer este implementata de clasa GreatMagician care este, de
+asemenea, si singleton.
+- Subject este implementata de toti ingerii si toti eroii, intrucat GreatMagician
+trebuie sa primeasca updates cand obiecte Angel si Hero sufera modificari.
+- Atat update, cat si notify, folosesc enumaritii de tip LegalAction pentru a
+desemna diferitele tipuri de actiuni posibile asupra unui angel sau erou.
+
+Strategiile:
+- Am definit interfata Strategy pentru a descrie generic o strategie. Aceasta
+cuprinde doar metoda strategy care modifica HP-ul si bonusul jucatorului asupra
+caruia actioneaza.
+- Am considerat ca ar fi util sa definesc o exceptie mai specifica decat
+ClassNotFoundException, asa ca am creeat clasa StrategyNotFoundException. Nu
+contine nicio metoda, doar mosteneste clasa Exception. Mi s-a parut mai practica
+alegerea unei unhandled exception, decat handled exception (din punct de vedere
+al lizibilitatii codului).
+- Fiecare tip de jucator are doua clase care implementeaza interfata Strategy:
+FirstStrategy si SecondStrategy. De asemenea, pentru a usura implementarea am
+salvat in fiecare strategie, intr-o variabila, eroul asupra caruia actioneaza.
